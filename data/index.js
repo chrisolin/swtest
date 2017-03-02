@@ -1,5 +1,6 @@
 var swapi = require('swapi-node');
 var _ = require('lodash');
+var Q = require('Q');
 
 function getCharacterByName(characterName) {
 	return swapi.get(getCharacterNameUrl(characterName))
@@ -41,7 +42,30 @@ function numberifyInts(characters) {
 	})
 }
 
+function getPlanetResidents() {
+	return swapi.get('http://swapi.co/api/planets/')
+		.then(response => {
+			var residentNamesPromises = response.results.map(getResidentsNames);
+			return Q.all(residentNamesPromises)
+				.then(formatPlanetsWithResidentNames.bind(this, residentNamesPromises));
+		});
+}
+
+function getResidentsNames(planet) {
+	var residentPromises = planet.residents.map(swapi.get);
+	return Q.all(residentPromises)
+		.then((residents) => _.map(residents, 'name'))
+		.then(residentsNames => _.set(planet, 'residentsNames', residentsNames));
+}
+
+function formatPlanetsWithResidentNames(planetsWithResidentNames) {
+	var result = {};
+	planetsWithResidentNames.forEach(planet => _.set(result, planet.name, planet.residentsNames));
+	return result;
+}
+
 module.exports = {
 	getCharacterByName,
 	getCharacters,
+	getPlanetResidents,
 };
