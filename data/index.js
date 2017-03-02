@@ -5,7 +5,7 @@ function getCharacterByName(characterName) {
 	return swapi.get(getCharacterNameUrl(characterName))
 		.then((response) => {
 			if (!response.count) {
-				return new Error('Character name not found');
+				throw new Error('Character name not found');
 			}
 			return response.results;
 		})
@@ -16,10 +16,11 @@ function getCharacterNameUrl(characterName) {
 	return `http://swapi.co/api/people/?search=${characterName}`;
 }
 
-function getCharactersList(max) {
+function getCharacters(max) {
 
 }
 
 module.exports = {
 	getCharacterByName,
+	getCharacters,
 };
