@@ -1,6 +1,6 @@
 var swapi = require('swapi-node');
 var _ = require('lodash');
-var Q = require('Q');
+var Q = require('q');
 
 function getCharacterByName(characterName) {
 	return swapi.get(getCharacterNameUrl(characterName))
