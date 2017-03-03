@@ -44,17 +44,20 @@ function numberifyInts(characters) {
 
 function getPlanetResidents() {
 	return swapi.get('http://swapi.co/api/planets/')
-		.then(response => {
-			var residentNamesPromises = response.results.map(getResidentsNames);
-			return Q.all(residentNamesPromises)
-				.then(formatPlanetsWithResidentNames.bind(this, residentNamesPromises));
-		});
+		.then(response => response.results)
+		.then(setResidentNamesOnPlanets);
+}
+
+function setResidentNamesOnPlanets(planets) {
+		var residentNamesPromises = planets.map(getResidentsNames);
+		return Q.all(residentNamesPromises)
+			.then(formatPlanetsWithResidentNames.bind(this, residentNamesPromises));
 }
 
 function getResidentsNames(planet) {
 	var residentPromises = planet.residents.map(swapi.get);
 	return Q.all(residentPromises)
-		.then((residents) => _.map(residents, 'name'))
+		.then(residents => _.map(residents, 'name'))
 		.then(residentsNames => _.set(planet, 'residentsNames', residentsNames));
 }
 
